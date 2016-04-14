@@ -1,6 +1,4 @@
 
-
-
 def arguments
     allowed_options = ['-k','-f']
     begin
