@@ -16,3 +16,8 @@ ich mach die Sache trotzdem fertig als fingerübung und demo taugt sie immer noc
 "top-rated" meint "interestingness"
 
 "get random words from a souce" da windows kein lokales dictionary hat, wird die liste mit poplären tags von flickr gefüllt
+
+###was geht
+keyword auf der kommandozeile & füllen mit wörtern aus überall verfügbarer quelle
+
+daten für ein pic zu einem tag
