@@ -1,5 +1,6 @@
 require "rest-client"
 require "json"
+require "open-uri"
 
 # with more smaller objects (100 line rule)
 # Collagen uses TagLists, PicComposer, PicFetcher
@@ -17,12 +18,11 @@ class Collagen
         
 
     def initialize  #(args)
-       init_vars
-       insert_api_key
-       args = arguments
-       tags = process_tags args['-k']
-       p tags, @fallback_tags
-       taglist_to_piclist tags
+        init_vars
+        insert_api_key
+        args = arguments
+        tags = process_tags args['-k']
+        download taglist_to_piclist tags
     end
     
     def arguments
@@ -96,9 +96,8 @@ class Collagen
     end
 
     def taglist_to_piclist(tag_list)
-        tag_list.each {|tag|
+        tag_list.map {|tag|
             tag_to_pic tag
-            ## do more here,some analyzing perhaps
         }
     end
 
@@ -108,8 +107,23 @@ class Collagen
         call = @api_base + suppl + tag
         res = RestClient.get call
         res = JSON.parse(trim_flickr_json res)
-        p res["photos"]["photo"][0]  
+        res["photos"]["photo"][0]  
     end
+
+    def download(pic_list)
+        pic_list.each_with_index {|pdata,i|
+            p pdata
+            f   = pdata["farm"]
+            sv  = pdata["server"]
+            id  = pdata["id"]
+            sec = pdata["secret"]
+            img_adr ="http://farm#{f}.staticflickr.com/#{sv}/#{id}_#{sec}.jpg"
+            puts "getting img #{i}"
+            download = open(img_adr)
+            IO.copy_stream(download, "./pics/image#{i}.png")
+        }
+    end
+
 end
 
 Collagen.new
