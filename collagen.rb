@@ -12,6 +12,7 @@ class Collagen
         @api_base = "https://api.flickr.com/services/rest/?format=json"
         @default_out_file = "output.jpg"
         @fallback_tags = []
+        @max_no_of_tags = 3
     end
         
 
@@ -54,9 +55,14 @@ class Collagen
     # the "tag-stream" needs tobe passed around in a more useful manner
     # without reliance on pseudo-global vars  
     def process_tags(tag_str)
-        fill_tags nil,10 unless tag_str
-        tag_list = tag_str.split(",")
-        if tag_list.length< 10 then fill_tags tag_list, 10-tag_list.length end
+        tag_list = if tag_str
+            tag_str.split(",")
+        else
+            fill_tags [], @max_no_of_tags
+        end
+        if tag_list.length < @max_no_of_tags
+            fill_tags tag_list, @max_no_of_tags - tag_list.length
+        end
         tag_list
     end
 
@@ -64,8 +70,7 @@ class Collagen
     # then u canlater choose the source of the fill-words
     # other random word source than hottags 
     def fill_tags(tag_list,count)
-        puts "u r missing #{count} of 10 tags. Collagen always runs with 10 tags. filling..."
-        tag_str =[] unless tag_str
+        puts "u r missing #{count} of #{@max_no_of_tags} tags. filling..."
         pop_tags = get_popular_tags
         pop_tags.each {|tag_hash|
             if  count > 0
@@ -99,11 +104,11 @@ class Collagen
 
     def tag_to_pic(tag)
         puts "gettin' pic for tag " + tag
-        suppl = "flickr.photos.search&sort=interestingness-desc&tags="
+        suppl = "flickr.photos.search&sort=interestingness-desc&per_page=5&tags="
         call = @api_base + suppl + tag
         res = RestClient.get call
         res = JSON.parse(trim_flickr_json res)
-        p res     
+        p res["photos"]["photo"][0]  
     end
 end
 
